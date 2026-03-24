@@ -27,11 +27,11 @@ module.exports = router;
 
 router.get('/:id', function (req, res, next) {
     const params = req.params;
-    const user = users.find(x => x.id === params.id);
+    const user = users.find(x => x.id === Number(params.id));
 
     if (!user) {
         return res.status(404).send('Not Found');
     }
 
     res.json(user);
-})
+});
