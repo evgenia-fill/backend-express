@@ -1,15 +1,21 @@
+
 const express = require('express');
 const router = express.Router();
+
+// Массив для хранения пользователей
+const users = [
+  { id: 1, name: "Степа" },
+  { id: 2, name: "Женя" },
+];
+
 
 
 router.get('/', function(req, res, next) {
   res.json({
-    items: [
-      { id: 1, name: "Степа" },
-      { id: 2, name: "Женя" },
-    ]
+    items: users
   });
 });
+
 
 router.post('/', function(req, res, next) {
   const newUser = req.body;
