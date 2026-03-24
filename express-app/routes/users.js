@@ -1,26 +1,25 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
 
-// Массив для хранения пользователей
-const users = [
-    {id: 1, name: "Степа"},
-    {id: 2, name: "Женя"},
+const sqlite3 = require("sqlite3").verbose();
+const db = new sqlite3.Database("mydb.db");
+db.run(`CREATE TABLE IF NOT EXISTS users (
+   id INTEGER PRIMARY KEY AUTOINCREMENT,
+   name text)`);
+
+let users = [
+    {
+        id: 1,
+        name: "Valeria",
+    },
+    {
+        id: 2,
+        name: "Egor",
+    },
 ];
 
-const sqlite3 = require('sqlite3').verbose()
-const db = new sqlite3.Database('mydb.db');
-db.run(`CREATE TABLE IF NOT EXISTS users
-        (
-            id
-            INTEGER
-            PRIMARY
-            KEY
-            AUTOINCREMENT,
-            name
-            text
-        )`);
-
-router.get('/', function (req, res, next) {
+/* GET users listing. */
+router.get("/", function (req, res, next) {
     db.all("SELECT id, name FROM users", [], (err, rows) => {
         if (err) {
             console.log(err);
@@ -30,26 +29,24 @@ router.get('/', function (req, res, next) {
     });
 });
 
+router.get("/:id", (req, res) => {
+    const userId = parseInt(req.params.id);
+    const user = users.find((u) => u.id === userId);
+    if (user) {
+        res.json(user);
+    } else {
+        res.status(404).json({ error: "User not found" });
+    }
+});
 
-router.post('/', function (req, res, next) {
+router.post("/", (req, res) => {
     const newUser = req.body;
-    const insert = "INSERT INTO users (newUser.name) VALUES (?)";
-    db.run(insert, [newUser.name]);
+    const insert = "INSERT INTO users (name) VALUES (?)";
+
+    db.run(insert, [newUser["name"]]);
+
+    users.push(newUser);
     res.status(201).json(newUser);
 });
 
 module.exports = router;
-
-
-router.get('/:id', function (req, res, next) {
-    const id = req.params.id;
-    db.all("SELECT id, name FROM users", [id], (err, rows) => {
-        if (err) {
-            console.log(err);
-        } else {
-            res.send(rows);
-        }
-
-        res.json(row);
-    });
-});
