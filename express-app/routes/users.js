@@ -7,18 +7,34 @@ const users = [
     {id: 2, name: "Женя"},
 ];
 
+const sqlite3 = require('sqlite3').verbose()
+const db = new sqlite3.Database('mydb.db');
+db.run(`CREATE TABLE IF NOT EXISTS users
+        (
+            id
+            INTEGER
+            PRIMARY
+            KEY
+            AUTOINCREMENT,
+            name
+            text
+        )`);
 
 router.get('/', function (req, res, next) {
-    res.json({
-        items: users
+    db.all("SELECT id, name FROM users", [], (err, rows) => {
+        if (err) {
+            console.log(err);
+        } else {
+            res.send(rows);
+        }
     });
 });
 
 
 router.post('/', function (req, res, next) {
     const newUser = req.body;
-    newUser.id = users.length > 0 ? users[users.length - 1].id + 1 : 1;
-    users.push(newUser);
+    const insert = "INSERT INTO users (newUser.name) VALUES (?)";
+    db.run(insert, [newUser.name]);
     res.status(201).json(newUser);
 });
 
@@ -26,12 +42,14 @@ module.exports = router;
 
 
 router.get('/:id', function (req, res, next) {
-    const params = req.params;
-    const user = users.find(x => x.id === Number(params.id));
+    const id = req.params.id;
+    db.all("SELECT id, name FROM users", [id], (err, rows) => {
+        if (err) {
+            console.log(err);
+        } else {
+            res.send(rows);
+        }
 
-    if (!user) {
-        return res.status(404).send('Not Found');
-    }
-
-    res.json(user);
+        res.json(row);
+    });
 });
